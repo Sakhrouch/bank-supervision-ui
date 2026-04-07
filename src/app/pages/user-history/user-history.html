@@ -25,7 +25,7 @@
           </span>
           <span>Serveurs</span>
         </a>
-        
+
         <a class="navpill" routerLink="/user-application" routerLinkActive="active">
           <span class="navicon">
             <img src="assets/application.png" alt="Application" class="navimg" />
@@ -39,8 +39,6 @@
           </span>
           <span>Alertes</span>
         </a>
-
-        
 
         <a
           class="navpill"
@@ -59,8 +57,6 @@
           </span>
           <span>Paramètres</span>
         </a>
-
-        
       </nav>
 
       <hr class="divider" />
@@ -74,17 +70,11 @@
       <div class="topbar">
         <div class="top-left">
           <div class="top-title">Historique</div>
-          <div class="top-sub">Vue 7 jours des serveurs, applications et incidents critiques</div>
+          <div class="top-sub">Sélectionnez une date pour voir les serveurs indisponibles</div>
         </div>
 
-        <div class="top-actions">
-          <div class="range-badge">7 derniers jours</div>
-
-          <button class="top-action-btn" type="button">
-            Export
-          </button>
-
-          <div class="top-user">
+        <div class="top-right">
+          <div class="top-user" (click)="toggleProfileCard($event)">
             <div class="top-avatar">
               <img src="assets/profil.png" alt="Profil" class="top-avatar-img" />
             </div>
@@ -95,6 +85,47 @@
                 <span class="top-dot"></span>
                 Connecté
               </div>
+            </div>
+          </div>
+
+          <div class="profile-card" *ngIf="showProfileCard" (click)="$event.stopPropagation()">
+            <div class="profile-header">
+              <div class="profile-avatar">
+                <img src="assets/profil.png" alt="Profil" />
+              </div>
+              <div class="profile-main">
+                <div class="profile-name">{{ userName }}</div>
+                <div class="profile-role">Utilisateur</div>
+              </div>
+            </div>
+
+            <div class="profile-info">
+              <div class="profile-item">
+                <span class="profile-label">Nom d'utilisateur</span>
+                <span class="profile-value">{{ userName }}</span>
+              </div>
+
+              <div class="profile-item">
+                <span class="profile-label">Email</span>
+                <span class="profile-value">user@bank.com</span>
+              </div>
+
+              <div class="profile-item">
+                <span class="profile-label">Statut</span>
+                <span class="profile-value online">Connecté</span>
+              </div>
+            </div>
+
+            <div class="profile-actions">
+              <button class="profile-btn settings-btn" type="button" (click)="closeProfileCard($event)">
+                <i class="bi bi-gear"></i>
+                Paramètres
+              </button>
+
+              <button class="profile-btn logout-btn" type="button" (click)="logout()">
+                <i class="bi bi-box-arrow-right"></i>
+                Déconnexion
+              </button>
             </div>
           </div>
         </div>
@@ -117,7 +148,7 @@
             <div class="panel-head">
               <div>
                 <div class="panel-title">Performance serveur</div>
-                <div class="panel-sub">Charge CPU et RAM durant les 7 derniers jours</div>
+                <div class="panel-sub">Charge CPU et RAM durant la période suivie</div>
               </div>
             </div>
 
@@ -159,77 +190,110 @@
             </div>
           </section>
 
+          <section class="panel gauge-panel">
+            <div class="panel-head">
+              <div>
+                <div class="panel-title">Disponibilité du jour</div>
+                <div class="panel-sub">{{ selectedDateLabel }}</div>
+              </div>
+            </div>
+
+            <div class="gauge-wrap">
+              <div class="gauge-ring" [style.background]="selectedDayGauge">
+                <div class="gauge-inner">
+                  <div class="gauge-value">{{ selectedDayAvailability }}%</div>
+                  <div class="gauge-label">Disponibilité</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="gauge-stats">
+              <div class="gauge-stat-box">
+                <span>Alertes du jour</span>
+                <strong>{{ selectedDayAlerts }}</strong>
+              </div>
+
+              <div class="gauge-stat-box">
+                <span>Incident dominant</span>
+                <strong>{{ selectedDayIssueLabel }}</strong>
+              </div>
+            </div>
+          </section>
+
           <div class="side-insights">
-            <section class="panel gauge-panel">
+            <section class="panel calendar-panel">
               <div class="panel-head">
                 <div>
-                  <div class="panel-title">Disponibilité globale</div>
-                  <div class="panel-sub">Moyenne application sur la semaine</div>
+                  <div class="panel-title">Calendrier des incidents</div>
+                  <div class="panel-sub">Cliquez sur un jour pour afficher les serveurs tombés</div>
                 </div>
               </div>
 
-              <div class="gauge-wrap">
-                <div class="gauge-ring" [style.background]="availabilityGauge">
-                  <div class="gauge-inner">
-                    <div class="gauge-value">{{ averageAvailability }}%</div>
-                    <div class="gauge-label">Disponibilité</div>
-                  </div>
-                </div>
+              <div class="month-chip">{{ monthLabel }}</div>
+
+              <div class="calendar-weekdays">
+                <div class="weekday-cell" *ngFor="let day of weekDays">{{ day }}</div>
               </div>
 
-              <div class="gauge-stats">
-                <div class="gauge-stat-box">
-                  <span>Transactions</span>
-                  <strong>{{ applicationHistory[4].transactions }}</strong>
-                </div>
-                <div class="gauge-stat-box">
-                  <span>Users max</span>
-                  <strong>{{ applicationHistory[4].activeUsers }}</strong>
-                </div>
+              <div class="calendar-grid">
+                <button
+                  type="button"
+                  class="calendar-cell"
+                  *ngFor="let cell of calendarCells"
+                  [class.empty]="!cell.dayNumber"
+                  [class.selected]="cell.dayNumber === selectedDayNumber"
+                  [class.has-issue]="hasIssue(cell.dayNumber)"
+                  (click)="selectDay(cell.dayNumber)">
+                  <span *ngIf="cell.dayNumber">{{ cell.dayNumber }}</span>
+                </button>
               </div>
             </section>
 
-            <section class="panel incident-focus">
+            <section class="panel day-issues-panel">
               <div class="panel-head">
                 <div>
-                  <div class="panel-title">Incident sélectionné</div>
-                  <div class="panel-sub">{{ selectedIncident.server }} · {{ selectedIncident.service }}</div>
+                  <div class="panel-title">Serveurs indisponibles</div>
+                  <div class="panel-sub">{{ selectedDateLabel }}</div>
                 </div>
               </div>
 
-              <div class="focus-status-row">
-                <span class="status-pill" [ngClass]="statusClass(selectedIncident.status)">
-                  {{ selectedIncident.status }}
-                </span>
-                <span class="focus-duration">{{ selectedIncident.duration }}</span>
-              </div>
-
-              <div class="focus-list">
-                <div class="focus-item">
-                  <span>Cause principale</span>
-                  <strong>{{ selectedIncident.rootCause }}</strong>
+              <div class="day-stats-row">
+                <div class="day-stat-box">
+                  <span>Disponibilité</span>
+                  <strong>{{ selectedDayAvailability }}%</strong>
                 </div>
 
-                <div class="focus-item">
-                  <span>Date de chute</span>
-                  <strong>{{ selectedIncident.occurredAt }}</strong>
-                </div>
-
-                <div class="focus-item">
-                  <span>Retour service</span>
-                  <strong>{{ selectedIncident.recoveredAt }}</strong>
-                </div>
-
-                <div class="focus-item">
-                  <span>Impact</span>
-                  <strong>{{ selectedIncident.impact }}</strong>
-                </div>
-
-                <div class="focus-item">
-                  <span>Action prise</span>
-                  <strong>{{ selectedIncident.action }}</strong>
+                <div class="day-stat-box">
+                  <span>Incidents</span>
+                  <strong>{{ selectedDayIssues.length }}</strong>
                 </div>
               </div>
+
+              <div class="day-issues-list" *ngIf="selectedDayIssues.length > 0; else noIssueTemplate">
+                <div class="issue-card" *ngFor="let item of selectedDayIssues">
+                  <div class="issue-card-top">
+                    <div>
+                      <div class="issue-server">{{ item.server }}</div>
+                      <div class="issue-service">{{ item.service }}</div>
+                    </div>
+
+                    <span class="status-pill" [ngClass]="statusClass(item.status)">
+                      {{ item.status }}
+                    </span>
+                  </div>
+
+                  <div class="issue-meta">{{ item.time }} · {{ item.duration }}</div>
+                  <div class="issue-text">{{ item.description }}</div>
+                  <div class="issue-impact"><span>Impact :</span> {{ item.impact }}</div>
+                </div>
+              </div>
+
+              <ng-template #noIssueTemplate>
+                <div class="empty-day-box">
+                  <div class="empty-day-title">Aucune chute détectée</div>
+                  <div class="empty-day-sub">Aucun serveur indisponible pour cette date.</div>
+                </div>
+              </ng-template>
             </section>
           </div>
         </div>

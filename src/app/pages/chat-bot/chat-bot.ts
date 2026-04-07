@@ -115,15 +115,12 @@ export class ChatBot implements AfterViewInit {
     });
   }
 
-  private scrollToBottom(): void {
-    setTimeout(() => {
-      if (!this.chatBody?.nativeElement) return;
+ private scrollToBottom(): void {
+  setTimeout(() => {
+    const container = this.chatBody?.nativeElement as HTMLElement | null;
+    if (!container) return;
 
-      const container = this.chatBody.nativeElement;
-      container.scrollTo({
-        top: container.scrollHeight,
-        behavior: 'smooth'
-      });
-    }, 50);
-  }
+    container.scrollTop = container.scrollHeight;
+  }, 50);
+}
 }

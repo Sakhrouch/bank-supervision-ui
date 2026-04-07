@@ -15,7 +15,7 @@
           routerLinkActive="active"
           [routerLinkActiveOptions]="{ exact: true }">
           <span class="navicon">
-            <img src="/assets/Dashbard.png" class="navimg" alt="Dashboard" />
+            <img src="/assets/Dashbard.png" class="navimg" alt="Tableau de bord" />
           </span>
           <span>Tableau de bord</span>
         </a>
@@ -25,19 +25,19 @@
           routerLink="/servers"
           routerLinkActive="active">
           <span class="navicon">
-            <img src="/assets/serveur-.png" class="navimg" alt="Servers" />
+            <img src="/assets/serveur-.png" class="navimg" alt="Serveurs" />
           </span>
           <span>Serveurs</span>
         </a>
 
         <a
-          class="navpill"
+          class="navpill active"
           routerLink="/application"
           routerLinkActive="active">
           <span class="navicon">
-            <img src="/assets/application.png" class="navimg" alt="Application" />
+            <img src="/assets/application.png" class="navimg" alt="Applications" />
           </span>
-          <span>Application</span>
+          <span>Applications</span>
         </a>
 
         <a
@@ -45,7 +45,7 @@
           routerLink="/alerts"
           routerLinkActive="active">
           <span class="navicon">
-            <img src="/assets/Alert.png" class="navimg" alt="Alerts" />
+            <img src="/assets/Alert.png" class="navimg" alt="Alertes" />
           </span>
           <span>Alertes</span>
         </a>
@@ -55,7 +55,7 @@
           routerLink="/users"
           routerLinkActive="active">
           <span class="navicon">
-            <img src="/assets/user.png" class="navimg" alt="Users" />
+            <img src="/assets/user.png" class="navimg" alt="Utilisateurs" />
           </span>
           <span>Utilisateurs</span>
         </a>
@@ -65,7 +65,7 @@
           routerLink="/settings"
           routerLinkActive="active">
           <span class="navicon">
-            <img src="/assets/settings.png" class="navimg" alt="Settings" />
+            <img src="/assets/settings.png" class="navimg" alt="Paramètres" />
           </span>
           <span>Paramètres</span>
         </a>
@@ -73,134 +73,411 @@
 
       <hr class="divider" />
 
-      <a class="logout" routerLink="/login">
+      <a class="logout" href="javascript:void(0)" (click)="logout()">
         <i class="bi bi-box-arrow-right"></i>
         <span>Se déconnecter</span>
       </a>
     </aside>
 
     <main class="main">
-
       <div class="topbar">
         <div class="top-left">
-          <div class="top-title">Application</div>
-          <div class="top-sub">Applications list & monitoring overview</div>
+          <div class="top-title">Applications</div>
+          <div class="top-sub">Gestion détaillée des applications métiers et de leur état</div>
         </div>
 
         <div class="top-search">
+          <i class="bi bi-search"></i>
           <input
             type="text"
-            placeholder="Search applications..."
-            [(ngModel)]="query" />
+            placeholder="Rechercher une application..."
+            [(ngModel)]="searchTerm" />
         </div>
 
-        <div class="top-user">
-          <div class="top-avatar"></div>
-          <div>
+        <button class="add-application-btn" type="button" (click)="openAddApplication()">
+          <i class="bi bi-plus-circle-fill"></i>
+          <span>Ajouter une application</span>
+        </button>
+
+        <div class="top-user" (click)="toggleProfileCard($event)">
+          <div class="top-avatar">
+            <img [src]="currentUser.image" alt="Profil" class="top-avatar-img" />
+          </div>
+
+          <div class="top-user-info">
             <div class="top-username">Admin</div>
             <div class="top-status">
               <span class="top-dot"></span>
-              Connected
+              Connecté
             </div>
+          </div>
+        </div>
+
+        <div class="profile-card" *ngIf="showProfileCard" (click)="$event.stopPropagation()">
+          <div class="profile-header">
+            <div class="profile-avatar">
+              <img [src]="currentUser.image" alt="Profil" />
+            </div>
+
+            <div class="profile-main">
+              <div class="profile-name">{{ currentUser.fullName }}</div>
+              <div class="profile-role">{{ currentUser.role }}</div>
+            </div>
+          </div>
+
+          <div class="profile-info">
+            <div class="profile-item">
+              <span class="profile-label">Nom d'utilisateur</span>
+              <span class="profile-value">{{ currentUser.username }}</span>
+            </div>
+
+            <div class="profile-item">
+              <span class="profile-label">Email</span>
+              <span class="profile-value">{{ currentUser.email }}</span>
+            </div>
+
+            <div class="profile-item">
+              <span class="profile-label">Statut</span>
+              <span class="profile-value online">{{ currentUser.status }}</span>
+            </div>
+          </div>
+
+          <div class="profile-actions">
+            <a class="profile-btn settings-btn" routerLink="/settings" (click)="closeProfileCard($event)">
+              Paramètres
+            </a>
+
+            <button class="profile-btn logout-btn" type="button" (click)="logout($event)">
+              Déconnexion
+            </button>
           </div>
         </div>
       </div>
 
       <div class="content">
-
-        <section class="panel">
-          <div class="panel-head">
+        <div class="stats-row">
+          <div class="stat stat-sidebar-tone" *ngFor="let item of resume">
             <div>
-              <div class="panel-title">Applications</div>
-              <div class="panel-sub">Manage banking applications</div>
+              <div class="label">{{ item.label }}</div>
+              <div class="value">{{ item.value }}</div>
+            </div>
+            <div class="mini-badge" [ngClass]="item.tone"></div>
+          </div>
+        </div>
+
+        <div class="application-layout">
+          <section class="panel left-panel">
+            <div class="panel-head">
+              <div>
+                <div class="panel-title">Liste des applications</div>
+                <div class="panel-sub">Sélectionnez une application pour consulter ses détails</div>
+              </div>
             </div>
 
-            <button
-              type="button"
-              class="btn btn-primary d-flex align-items-center gap-2 px-4 py-2 shadow-sm rounded-3"
-              (click)="openAddApplication()">
-              <i class="bi bi-plus-circle-fill"></i>
-              <span>Add Application</span>
-            </button>
+            <div class="table-wrap">
+              <table class="table table-borderless align-middle m-0 table-custom">
+                <thead>
+                  <tr>
+                    <th>Application</th>
+                    <th>Serveur</th>
+                    <th>Version</th>
+                    <th>Statut</th>
+                    <th class="text-end">Heure</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  <tr
+                    *ngFor="let app of applicationsFiltrees"
+                    class="clickable-row"
+                    [class.active-row]="selectedApplication.id === app.id"
+                    (click)="selectApplication(app)">
+                    <td>
+                      <div class="app-cell">
+                        <div class="app-icon">
+                          <img src="/assets/application.png" alt="Application" />
+                        </div>
+                        <div>
+                          <div class="app-name">{{ app.nom }}</div>
+                          <div class="app-sub">{{ app.environnement }}</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td class="muted">{{ app.serveur }}</td>
+                    <td class="muted">{{ app.version }}</td>
+                    <td>
+                      <span class="status-pill" [ngClass]="statusClass(app.statut)">
+                        {{ app.statut }}
+                      </span>
+                    </td>
+                    <td class="text-end muted">{{ app.heure }}</td>
+                  </tr>
+
+                  <tr *ngIf="applicationsFiltrees.length === 0">
+                    <td colspan="5" class="empty-row">Aucune application trouvée</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          <section class="panel right-panel">
+            <div class="panel-head">
+              <div>
+                <div class="panel-title">Fiche application</div>
+                <div class="panel-sub">{{ selectedApplication.nom }}</div>
+              </div>
+            </div>
+
+            <div class="details-grid">
+              <div class="detail-card">
+                <span class="detail-label">Nom</span>
+                <span class="detail-value">{{ selectedApplication.nom }}</span>
+              </div>
+
+              <div class="detail-card">
+                <span class="detail-label">Serveur</span>
+                <span class="detail-value">{{ selectedApplication.serveur }}</span>
+              </div>
+
+              <div class="detail-card">
+                <span class="detail-label">Version</span>
+                <span class="detail-value">{{ selectedApplication.version }}</span>
+              </div>
+
+              <div class="detail-card">
+                <span class="detail-label">Environnement</span>
+                <span class="detail-value">{{ selectedApplication.environnement }}</span>
+              </div>
+
+              <div class="detail-card">
+                <span class="detail-label">Responsable</span>
+                <span class="detail-value">{{ selectedApplication.responsable }}</span>
+              </div>
+
+              <div class="detail-card">
+                <span class="detail-label">Utilisateurs actifs</span>
+                <span class="detail-value">{{ selectedApplication.utilisateurs }}</span>
+              </div>
+
+              <div class="detail-card wide">
+                <div class="status-container">
+                  <div>
+                    <span class="detail-label">Statut</span>
+                    <span class="status-pill large" [ngClass]="statusClass(selectedApplication.statut)">
+                      {{ selectedApplication.statut }}
+                    </span>
+                  </div>
+                  <button class="btn-edit" type="button" (click)="editApplication()">
+                    <i class="bi bi-pencil"></i>
+                    Edit
+                  </button>
+                </div>
+              </div>
+
+              <div class="detail-card wide">
+                <span class="detail-label">Description</span>
+                <span class="detail-value">{{ selectedApplication.description }}</span>
+              </div>
+            </div>
+
+            <div class="metrics-block">
+              <div class="metric-line">
+                <div class="metric-head">
+                  <span>Disponibilité</span>
+                  <strong>{{ selectedApplication.disponibilite }}%</strong>
+                </div>
+                <div class="progress-track">
+                  <div class="progress-fill success" [style.width.%]="selectedApplication.disponibilite"></div>
+                </div>
+              </div>
+
+              <div class="metric-line">
+                <div class="metric-head">
+                  <span>Charge</span>
+                  <strong>{{ selectedApplication.charge }}%</strong>
+                </div>
+                <div class="progress-track">
+                  <div class="progress-fill info" [style.width.%]="selectedApplication.charge"></div>
+                </div>
+              </div>
+
+              <div class="metric-line">
+                <div class="metric-head">
+                  <span>Latence</span>
+                  <strong>{{ selectedApplication.latence }} ms</strong>
+                </div>
+                <div class="progress-track">
+                  <div
+                    class="progress-fill warning"
+                    [style.width.%]="selectedApplication.latence > 300 ? 100 : selectedApplication.latence / 3">
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <section class="sub-panel">
+              <div class="sub-panel-title">Technologies utilisées</div>
+              <div class="tags-row">
+                <span class="tech-tag" *ngFor="let tech of selectedApplication.technologie">
+                  {{ tech }}
+                </span>
+              </div>
+            </section>
+
+            <section class="sub-panel">
+              <div class="sub-panel-title">Indicateurs clés</div>
+              <div class="key-figures">
+                <div class="mini-card">
+                  <span class="mini-label">Incidents</span>
+                  <strong>{{ selectedApplication.incidents }}</strong>
+                </div>
+                <div class="mini-card">
+                  <span class="mini-label">Dernier déploiement</span>
+                  <strong>{{ selectedApplication.dernierDeploiement }}</strong>
+                </div>
+              </div>
+            </section>
+
+            <section class="sub-panel ai-panel">
+              <div class="sub-panel-title ai-head">
+                <span>Analyse IA</span>
+                <span class="ai-badge" [ngClass]="aiSeverityClass">Assistant IA</span>
+              </div>
+
+              <div class="ai-box">
+                <div class="ai-title">{{ aiTitle }}</div>
+                <p class="ai-text">{{ aiMessage }}</p>
+
+                <div class="ai-list-title">Recommandations</div>
+                <ul class="ai-list">
+                  <li *ngFor="let item of aiRecommendations">{{ item }}</li>
+                </ul>
+              </div>
+            </section>
+          </section>
+        </div>
+      </div>
+
+      <div class="modal-backdrop" *ngIf="showAdd" (click)="closeAddApplication()"></div>
+
+      <div class="modal-card" *ngIf="showAdd">
+        <div class="modal-head">
+          <div class="modal-title">Ajouter une application</div>
+          <button class="modal-x" type="button" (click)="closeAddApplication()">×</button>
+        </div>
+
+        <div class="modal-body">
+          <label class="form-label">Nom de l'application</label>
+          <input class="form-control" [(ngModel)]="form.nom" placeholder="Ex : Portail RH" />
+
+          <div class="grid2">
+            <div>
+              <label class="form-label">Serveur</label>
+              <input class="form-control" [(ngModel)]="form.serveur" placeholder="Ex : SRV-07" />
+            </div>
+
+            <div>
+              <label class="form-label">Version</label>
+              <input class="form-control" [(ngModel)]="form.version" placeholder="Ex : v1.0.0" />
+            </div>
           </div>
 
-          <div class="table-wrap">
-            <table class="table table-borderless align-middle m-0 table-custom">
-              <thead>
-                <tr>
-                  <th style="width:220px;">Application</th>
-                  <th style="width:140px;">Server</th>
-                  <th style="width:120px;">Version</th>
-                  <th style="width:140px;">Status</th>
-                  <th class="text-end" style="width:110px;">Time</th>
-                </tr>
-              </thead>
+          <div class="grid2">
+            <div>
+              <label class="form-label">Statut</label>
+              <select class="form-control" [(ngModel)]="form.statut">
+                <option value="En ligne">En ligne</option>
+                <option value="Alerte">Alerte</option>
+                <option value="Arrêtée">Arrêtée</option>
+                <option value="Maintenance">Maintenance</option>
+              </select>
+            </div>
 
-              <tbody>
-                <tr *ngFor="let app of filteredApplications">
-                  <td class="fw-semibold">{{ app.name }}</td>
-                  <td class="muted">{{ app.server }}</td>
-                  <td class="muted">{{ app.version }}</td>
-                  <td class="status-text" [ngClass]="getStatusClass(app.status)">
-                    {{ app.status }}
-                  </td>
-                  <td class="text-end muted">{{ app.lastCheck }}</td>
-                </tr>
-
-                <tr *ngIf="filteredApplications.length === 0">
-                  <td colspan="5" class="empty">No applications found</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </section>
-
-        <div
-          class="modal-backdrop"
-          *ngIf="showAdd"
-          (click)="closeAddApplication()"></div>
-
-        <div class="modal-card" *ngIf="showAdd">
-          <div class="modal-head">
-            <div class="modal-title">Add application</div>
-            <button class="modal-x" type="button" (click)="closeAddApplication()">×</button>
+            <div>
+              <label class="form-label">Environnement</label>
+              <select class="form-control" [(ngModel)]="form.environnement">
+                <option value="Production">Production</option>
+                <option value="Préproduction">Préproduction</option>
+                <option value="Test">Test</option>
+                <option value="Recette">Recette</option>
+              </select>
+            </div>
           </div>
 
-          <div class="modal-body">
-            <label class="form-label">Application name</label>
-            <input
-              class="form-control"
-              [(ngModel)]="form.name"
-              placeholder="Ex: Core Banking" />
+          <label class="form-label">Responsable</label>
+          <input class="form-control" [(ngModel)]="form.responsable" placeholder="Ex : Équipe Applicative" />
 
-            <label class="form-label">Server</label>
-            <input
-              class="form-control"
-              [(ngModel)]="form.server"
-              placeholder="Ex: SRV-06" />
+          <label class="form-label">Description</label>
+          <textarea class="form-control textarea-control" [(ngModel)]="form.description" placeholder="Description de l'application"></textarea>
 
-            <label class="form-label">Version</label>
-            <input
-              class="form-control"
-              [(ngModel)]="form.version"
-              placeholder="Ex: v1.0.0" />
+          <label class="form-label">Technologies (séparées par des virgules)</label>
+          <input class="form-control" [(ngModel)]="form.technologie" placeholder="Ex : Angular, Spring Boot, Oracle" />
 
-            <label class="form-label">Status</label>
-            <select class="form-control" [(ngModel)]="form.status">
-              <option value="Running">Running</option>
-              <option value="Warning">Warning</option>
-              <option value="Stopped">Stopped</option>
-            </select>
+          <div class="grid2">
+            <div>
+              <label class="form-label">Disponibilité (%)</label>
+              <input class="form-control" type="number" [(ngModel)]="form.disponibilite" />
+            </div>
 
-            <div class="modal-actions">
-              <button class="btn-soft" type="button" (click)="closeAddApplication()">Cancel</button>
-              <button class="btn-primary-soft" type="button" (click)="addApplication()">Add</button>
+            <div>
+              <label class="form-label">Charge (%)</label>
+              <input class="form-control" type="number" [(ngModel)]="form.charge" />
+            </div>
+          </div>
+
+          <div class="grid2">
+            <div>
+              <label class="form-label">Latence (ms)</label>
+              <input class="form-control" type="number" [(ngModel)]="form.latence" />
+            </div>
+
+            <div>
+              <label class="form-label">Incidents</label>
+              <input class="form-control" type="number" [(ngModel)]="form.incidents" />
+            </div>
+          </div>
+
+          <div class="grid2">
+            <div>
+              <label class="form-label">Dernier déploiement</label>
+              <input class="form-control" [(ngModel)]="form.dernierDeploiement" placeholder="Ex : 15/03/2026" />
+            </div>
+
+            <div>
+              <label class="form-label">Utilisateurs actifs</label>
+              <input class="form-control" [(ngModel)]="form.utilisateurs" placeholder="Ex : 320" />
             </div>
           </div>
         </div>
 
+        <div class="modal-actions">
+          <button class="btn-secondary" type="button" (click)="closeAddApplication()">Annuler</button>
+          <button class="btn-primary" type="button" (click)="addApplication()">Ajouter</button>
+        </div>
+      </div>
+
+      <div class="modal-backdrop" *ngIf="showEditStatus" (click)="closeEditStatus()"></div>
+
+      <div class="modal-card edit-status-modal" *ngIf="showEditStatus">
+        <div class="modal-head">
+          <div class="modal-title">Modifier le statut</div>
+          <button class="modal-x" type="button" (click)="closeEditStatus()">×</button>
+        </div>
+
+        <div class="modal-body">
+          <div class="status-options">
+            <button 
+              *ngFor="let status of availableStatuses"
+              class="status-option-btn"
+              [ngClass]="statusClass(status)"
+              type="button"
+              (click)="updateStatus(status)">
+              {{ status }}
+            </button>
+          </div>
+        </div>
       </div>
     </main>
-
   </div>
 </div>

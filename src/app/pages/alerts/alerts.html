@@ -92,7 +92,7 @@
           <input type="text" placeholder="Search servers, alerts..." />
         </div>
 
-        <div class="top-user">
+        <div class="top-user" (click)="toggleProfileCard($event)">
           <div class="top-avatar">
             <i class="bi bi-person-fill"></i>
           </div>
@@ -101,6 +101,49 @@
             <div class="top-status">
               <span class="top-dot"></span>
               Connected
+            </div>
+          </div>
+
+          <div class="profile-card-wrapper" *ngIf="showProfileCard">
+            <div class="profile-card" (click)="$event.stopPropagation()">
+              <div class="profile-header">
+                <div class="profile-avatar">
+                  <i class="bi bi-person-fill"></i>
+                </div>
+                <div class="profile-main">
+                  <div class="profile-name">Administrateur</div>
+                  <div class="profile-role">Admin</div>
+                </div>
+              </div>
+
+              <div class="profile-info">
+                <div class="profile-item">
+                  <span class="profile-label">Nom d'utilisateur</span>
+                  <span class="profile-value">admin1</span>
+                </div>
+
+                <div class="profile-item">
+                  <span class="profile-label">Email</span>
+                  <span class="profile-value">admin@bank.com</span>
+                </div>
+
+                <div class="profile-item">
+                  <span class="profile-label">Statut</span>
+                  <span class="profile-value online">Connecté</span>
+                </div>
+              </div>
+
+              <div class="profile-actions">
+                <button class="profile-btn settings-btn" type="button" (click)="closeProfileCard($event)">
+                  <i class="bi bi-gear"></i>
+                  Paramètres
+                </button>
+
+                <button class="profile-btn logout-btn" type="button" (click)="logout()">
+                  <i class="bi bi-box-arrow-right"></i>
+                  Déconnexion
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -184,11 +227,6 @@
                 <button class="btn-solid-secondary" type="button" (click)="markAllRead()">
                   <i class="bi bi-check2-circle"></i>
                   Mark all read
-                </button>
-
-                <button class="btn-solid-export" type="button" (click)="exportReceivedAlerts()">
-                  <i class="bi bi-download"></i>
-                  Export
                 </button>
 
                 <button class="btn-solid-danger" type="button" (click)="clearAll()">

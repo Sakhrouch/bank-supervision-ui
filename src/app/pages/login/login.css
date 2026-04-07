@@ -6,29 +6,64 @@
 
 .login-overlay {
   min-height: 100vh;
-  background: linear-gradient(180deg, rgba(15, 45, 74, 0.72) 18%, rgba(255, 255, 255, 0.08) 100%);
-  opacity: 0.92;
+  background: linear-gradient(
+    180deg,
+    rgba(15, 45, 74, 0.72) 18%,
+    rgba(255, 255, 255, 0.08) 100%
+  );
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
 }
 
 .login-card {
-  width: 520px;
+  width: 550px;
   max-width: 92%;
   background: rgba(90, 104, 119, 0.95);
   backdrop-filter: blur(8px);
   border-radius: 16px;
   z-index: 2;
+  padding: 34px 34px 28px;
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.28);
+}
+
+/* LOGO */
+.login-logo {
+  width: 290px;   /* kbartha */
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 0 auto 18px;
+  object-fit: contain;
+}
+
+/* TITRES */
+.login-title {
+  color: #ffffff;
+  font-size: 28px;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 8px;
 }
 
 .login-subtitle {
-  color: rgba(255, 255, 255, 0.75);
+  color: rgba(255, 255, 255, 0.78);
   font-size: 14px;
+  text-align: center;
+  margin-bottom: 28px;
 }
 
+/* INPUTS */
 .form-control {
   min-height: 54px;
   border: 1px solid rgba(255, 255, 255, 0.12);
   background: rgba(255, 255, 255, 0.96);
   box-shadow: none;
+  border-radius: 10px;
+  font-size: 15px;
+  padding-left: 14px;
+  padding-right: 14px;
 }
 
 .form-control:focus {
@@ -36,21 +71,35 @@
   border-color: #163d69;
 }
 
+/* BOUTON OEIL */
 .eye-btn {
   color: #1f2c38;
   text-decoration: none !important;
+  background: transparent;
+  border: none;
 }
 
 .eye-btn:hover {
   color: #0d1b2a;
 }
 
+/* CHECKBOX + TEXT */
+.form-check-label,
+.remember-text {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 14px;
+}
+
+/* BOUTON LOGIN */
 .login-btn {
   background: #162e55;
   border: none;
   color: #ffffff;
-  font-weight: 600;
+  font-weight: 700;
   min-height: 54px;
+  border-radius: 10px;
+  font-size: 16px;
+  transition: 0.2s ease;
 }
 
 .login-btn:hover {
@@ -58,13 +107,50 @@
   color: #ffffff;
 }
 
-.register-link,
+/* LIENS */
 .small-link {
-  color: #ffffff;
+  color: rgba(255, 255, 255, 0.82);
   font-weight: 500;
+  text-decoration: none;
 }
 
-.register-link:hover,
 .small-link:hover {
   color: #ffffff;
+}
+
+/* MASQUER "Créer un compte" */
+.register-link {
+  display: none !important;
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  .login-card {
+    width: 100%;
+    padding: 28px 22px 24px;
+  }
+
+  .login-logo {
+    width: 300px;
+  }
+
+  .login-title {
+    font-size: 24px;
+  }
+}
+
+@media (max-width: 480px) {
+  .login-card {
+    padding: 24px 18px 20px;
+    border-radius: 14px;
+  }
+
+  .login-logo {
+    width: 300px;
+  }
+
+  .form-control,
+  .login-btn {
+    min-height: 50px;
+  }
 }

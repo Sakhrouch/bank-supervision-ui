@@ -52,6 +52,7 @@ interface SentAlert {
 })
 export class Alerts {
   activeTab: AlertsTab = 'received';
+  showProfileCard = false;
 
   incoming: IncomingAlert = {
     server: 'SRV-02',
@@ -251,6 +252,25 @@ export class Alerts {
 
   trackBySentId(_: number, item: SentAlert): number {
     return item.id;
+  }
+
+  toggleProfileCard(event: MouseEvent): void {
+    event.stopPropagation();
+    this.showProfileCard = !this.showProfileCard;
+  }
+
+  closeProfileCard(event?: MouseEvent): void {
+    if (event) {
+      event.stopPropagation();
+    }
+    this.showProfileCard = false;
+  }
+
+  logout(event?: MouseEvent): void {
+    if (event) {
+      event.stopPropagation();
+    }
+    this.showProfileCard = false;
   }
 
   private createEmptyForm(): SendForm {

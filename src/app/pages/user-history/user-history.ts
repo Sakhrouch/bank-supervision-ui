@@ -1,6 +1,5 @@
 import { Component, OnInit, PLATFORM_ID, inject } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 
 interface ServerHistoryItem {
@@ -14,31 +13,27 @@ interface ServerHistoryItem {
   dominantIssue: string;
 }
 
-interface AppHistoryItem {
-  day: string;
-  activeUsers: number;
-  latency: number;
-  transactions: number;
-  availability: number;
-}
-
-interface IncidentItem {
+interface DailyServerIssue {
   id: number;
+  dayNumber: number;
+  date: string;
   server: string;
   service: string;
-  rootCause: string;
-  occurredAt: string;
-  recoveredAt: string;
+  time: string;
   duration: string;
-  status: 'Résolu' | 'Surveillance' | 'Critique';
+  status: 'Résolu' | 'Alerte' | 'Critique';
+  description: string;
   impact: string;
-  action: string;
+}
+
+interface CalendarCell {
+  dayNumber: number | null;
 }
 
 @Component({
   selector: 'app-user-history',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [CommonModule, RouterModule],
   templateUrl: './user-history.html',
   styleUrls: ['./user-history.css']
 })
@@ -47,8 +42,11 @@ export class UserHistory implements OnInit {
   private isBrowser = isPlatformBrowser(this.platformId);
 
   userName = 'Utilisateur';
-  userEmail = 'user@bank.com';
-  searchTerm = '';
+  showProfileCard = false;
+
+  monthLabel = 'Mars 2026';
+  weekDays = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
+  selectedDayNumber = 14;
 
   serverHistory: ServerHistoryItem[] = [
     {
@@ -123,68 +121,92 @@ export class UserHistory implements OnInit {
     }
   ];
 
-  applicationHistory: AppHistoryItem[] = [
-    { day: 'Lun', activeUsers: 145, latency: 118, transactions: 1220, availability: 99 },
-    { day: 'Mar', activeUsers: 152, latency: 124, transactions: 1288, availability: 98 },
-    { day: 'Mer', activeUsers: 134, latency: 189, transactions: 1102, availability: 95 },
-    { day: 'Jeu', activeUsers: 149, latency: 141, transactions: 1264, availability: 97 },
-    { day: 'Ven', activeUsers: 171, latency: 231, transactions: 1389, availability: 93 },
-    { day: 'Sam', activeUsers: 121, latency: 104, transactions: 990, availability: 99 },
-    { day: 'Dim', activeUsers: 116, latency: 97, transactions: 942, availability: 100 }
-  ];
-
-  incidents: IncidentItem[] = [
+  dailyIssues: DailyServerIssue[] = [
     {
       id: 1,
-      server: 'SRV-02',
-      service: 'Customer Portal',
-      rootCause: 'Pic CPU causé par une requête SQL non optimisée et montée soudaine du trafic.',
-      occurredAt: '12/03/2026 - 10:42',
-      recoveredAt: '12/03/2026 - 11:18',
-      duration: '36 min',
+      dayNumber: 11,
+      date: '11/03/2026',
+      server: 'SRV-01',
+      service: 'Core Banking',
+      time: '15:30',
+      duration: '22 min',
       status: 'Résolu',
-      impact: 'Lenteur visible côté portail client.',
-      action: 'Optimisation requête + purge cache applicatif.'
+      description: 'Temps de réponse élevé lié à une saturation temporaire de la file de transactions.',
+      impact: 'Ralentissement ponctuel des opérations bancaires.'
     },
     {
       id: 2,
-      server: 'SRV-06',
-      service: 'Mobile API',
-      rootCause: 'Consommation RAM excessive après exécution batch et fuite mémoire sur worker.',
-      occurredAt: '14/03/2026 - 08:15',
-      recoveredAt: '14/03/2026 - 09:04',
-      duration: '49 min',
-      status: 'Critique',
-      impact: 'API mobile indisponible partiellement.',
-      action: 'Redémarrage service + limitation workers + analyse mémoire.'
+      dayNumber: 12,
+      date: '12/03/2026',
+      server: 'SRV-02',
+      service: 'Customer Portal',
+      time: '10:42',
+      duration: '36 min',
+      status: 'Résolu',
+      description: 'Pic CPU causé par une requête SQL non optimisée et montée soudaine du trafic.',
+      impact: 'Lenteur visible côté portail client.'
     },
     {
       id: 3,
-      server: 'SRV-04',
-      service: 'Reporting Suite',
-      rootCause: 'Maintenance prolongée après mise à jour des dépendances.',
-      occurredAt: '13/03/2026 - 18:20',
-      recoveredAt: '13/03/2026 - 19:05',
-      duration: '45 min',
-      status: 'Surveillance',
-      impact: 'Rapports retardés pour les utilisateurs internes.',
-      action: 'Rollback partiel + vérification jobs planifiés.'
+      dayNumber: 12,
+      date: '12/03/2026',
+      server: 'SRV-05',
+      service: 'Authentication API',
+      time: '11:07',
+      duration: '18 min',
+      status: 'Alerte',
+      description: 'Instabilité applicative après redémarrage automatique du service d’authentification.',
+      impact: 'Connexions intermittentes pour plusieurs utilisateurs.'
     },
     {
       id: 4,
-      server: 'SRV-01',
-      service: 'Core Banking',
-      rootCause: 'Temps de réponse élevé lié à une saturation temporaire de la file de transactions.',
-      occurredAt: '11/03/2026 - 15:30',
-      recoveredAt: '11/03/2026 - 15:52',
-      duration: '22 min',
-      status: 'Résolu',
-      impact: 'Ralentissement ponctuel des opérations bancaires.',
-      action: 'Vidage queue + augmentation des workers.'
+      dayNumber: 13,
+      date: '13/03/2026',
+      server: 'SRV-04',
+      service: 'Reporting Suite',
+      time: '18:20',
+      duration: '45 min',
+      status: 'Alerte',
+      description: 'Maintenance prolongée après mise à jour des dépendances applicatives.',
+      impact: 'Rapports retardés pour les utilisateurs internes.'
+    },
+    {
+      id: 5,
+      dayNumber: 14,
+      date: '14/03/2026',
+      server: 'SRV-06',
+      service: 'Mobile API',
+      time: '08:15',
+      duration: '49 min',
+      status: 'Critique',
+      description: 'Consommation RAM excessive après exécution batch et fuite mémoire sur worker.',
+      impact: 'API mobile indisponible partiellement.'
+    },
+    {
+      id: 6,
+      dayNumber: 14,
+      date: '14/03/2026',
+      server: 'SRV-03',
+      service: 'Batch Processor',
+      time: '08:32',
+      duration: '31 min',
+      status: 'Critique',
+      description: 'Blocage de la file jobs et saturation du traitement batch du matin.',
+      impact: 'Retard de traitement et alertes en cascade.'
+    },
+    {
+      id: 7,
+      dayNumber: 14,
+      date: '14/03/2026',
+      server: 'SRV-08',
+      service: 'Notifications Service',
+      time: '09:10',
+      duration: '12 min',
+      status: 'Alerte',
+      description: 'Service lent suite à une montée soudaine du trafic et de la consommation CPU.',
+      impact: 'Notifications retardées pour une partie des clients.'
     }
   ];
-
-  selectedIncident: IncidentItem = this.incidents[0];
 
   constructor(private router: Router) {}
 
@@ -196,7 +218,6 @@ export class UserHistory implements OnInit {
       JSON.parse(sessionStorage.getItem('currentUser') || 'null');
 
     this.userName = currentUser?.name || 'Utilisateur';
-    this.userEmail = currentUser?.email || 'user@bank.com';
   }
 
   get summaryCards() {
@@ -217,50 +238,83 @@ export class UserHistory implements OnInit {
     return [
       { label: 'CPU moyen', value: `${avgCpu}%`, note: 'Charge hebdomadaire', tone: 'blue' },
       { label: 'RAM moyenne', value: `${avgRam}%`, note: 'Utilisation mémoire', tone: 'purple' },
-      { label: 'Disponibilité', value: `${avgAvailability}%`, note: 'Uptime semaine', tone: 'green' },
-      { label: 'Alertes 7 jours', value: `${totalAlerts}`, note: 'Incidents détectés', tone: 'red' }
+      { label: 'Disponibilité', value: `${avgAvailability}%`, note: 'Uptime global', tone: 'green' },
+      { label: 'Alertes', value: `${totalAlerts}`, note: 'Incidents détectés', tone: 'red' }
     ];
-  }
-
-  get averageAvailability(): number {
-    return Math.round(
-      this.applicationHistory.reduce((sum, item) => sum + item.availability, 0) / this.applicationHistory.length
-    );
-  }
-
-  get availabilityGauge(): string {
-    const value = this.averageAvailability;
-    return `conic-gradient(#2f80ff 0% ${value}%, rgba(255,255,255,.08) ${value}% 100%)`;
   }
 
   get maxLoadValue(): number {
     return Math.max(...this.serverHistory.map(item => Math.max(item.cpu, item.ram, item.storage)), 100);
   }
 
-  get filteredIncidents(): IncidentItem[] {
-    const q = this.searchTerm.trim().toLowerCase();
+  get calendarCells(): CalendarCell[] {
+    const cells: CalendarCell[] = [];
+    const firstDayOffset = 6;
+    const daysInMonth = 31;
 
-    return this.incidents.filter((item) => {
-      return (
-        !q ||
-        item.server.toLowerCase().includes(q) ||
-        item.service.toLowerCase().includes(q) ||
-        item.rootCause.toLowerCase().includes(q) ||
-        item.status.toLowerCase().includes(q) ||
-        item.occurredAt.toLowerCase().includes(q)
-      );
-    });
+    for (let i = 0; i < firstDayOffset; i++) {
+      cells.push({ dayNumber: null });
+    }
+
+    for (let day = 1; day <= daysInMonth; day++) {
+      cells.push({ dayNumber: day });
+    }
+
+    while (cells.length % 7 !== 0) {
+      cells.push({ dayNumber: null });
+    }
+
+    return cells;
   }
 
-  selectIncident(item: IncidentItem): void {
-    this.selectedIncident = item;
+  get selectedDateLabel(): string {
+    return `${String(this.selectedDayNumber).padStart(2, '0')}/03/2026`;
+  }
+
+  get selectedDayIssues(): DailyServerIssue[] {
+    return this.dailyIssues.filter(item => item.dayNumber === this.selectedDayNumber);
+  }
+
+  get selectedDayHistory(): ServerHistoryItem | undefined {
+    return this.serverHistory.find(item => this.extractDayNumber(item.date) === this.selectedDayNumber);
+  }
+
+  get selectedDayAvailability(): number {
+    return this.selectedDayHistory?.availability ?? 100;
+  }
+
+  get selectedDayAlerts(): number {
+    return this.selectedDayHistory?.alerts ?? 0;
+  }
+
+  get selectedDayIssueLabel(): string {
+    return this.selectedDayHistory?.dominantIssue ?? 'Aucune anomalie critique';
+  }
+
+  get selectedDayGauge(): string {
+    const value = this.selectedDayAvailability;
+    return `conic-gradient(#2f80ff 0% ${value}%, rgba(255,255,255,.08) ${value}% 100%)`;
+  }
+
+  selectDay(dayNumber: number | null): void {
+    if (!dayNumber) return;
+    this.selectedDayNumber = dayNumber;
+  }
+
+  hasIssue(dayNumber: number | null): boolean {
+    if (!dayNumber) return false;
+    return this.dailyIssues.some(item => item.dayNumber === dayNumber);
+  }
+
+  extractDayNumber(dateValue: string): number {
+    return Number(dateValue.split('/')[0]);
   }
 
   statusClass(status: string): string {
     switch (status) {
       case 'Critique':
         return 'critical';
-      case 'Surveillance':
+      case 'Alerte':
         return 'watch';
       default:
         return 'resolved';
@@ -268,10 +322,23 @@ export class UserHistory implements OnInit {
   }
 
   logout(): void {
+    this.showProfileCard = false;
     if (!this.isBrowser) return;
 
     localStorage.removeItem('currentUser');
     sessionStorage.removeItem('currentUser');
     this.router.navigate(['/login']);
+  }
+
+  toggleProfileCard(event: MouseEvent): void {
+    event.stopPropagation();
+    this.showProfileCard = !this.showProfileCard;
+  }
+
+  closeProfileCard(event?: MouseEvent): void {
+    if (event) {
+      event.stopPropagation();
+    }
+    this.showProfileCard = false;
   }
 }

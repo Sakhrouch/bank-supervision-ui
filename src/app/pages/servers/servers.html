@@ -15,7 +15,7 @@
           routerLinkActive="active"
           [routerLinkActiveOptions]="{ exact: true }">
           <span class="navicon">
-            <img src="/assets/Dashbard.png" class="navimg" alt="Dashboard" />
+            <img src="/assets/Dashbard.png" class="navimg" alt="Tableau de bord" />
           </span>
           <span>Tableau de bord</span>
         </a>
@@ -25,7 +25,7 @@
           routerLink="/servers"
           routerLinkActive="active">
           <span class="navicon">
-            <img src="/assets/serveur-.png" class="navimg" alt="Servers" />
+            <img src="/assets/serveur-.png" class="navimg" alt="Serveurs" />
           </span>
           <span>Serveurs</span>
         </a>
@@ -45,7 +45,7 @@
           routerLink="/alerts"
           routerLinkActive="active">
           <span class="navicon">
-            <img src="/assets/Alert.png" class="navimg" alt="Alerts" />
+            <img src="/assets/Alert.png" class="navimg" alt="Alertes" />
           </span>
           <span>Alertes</span>
         </a>
@@ -55,7 +55,7 @@
           routerLink="/users"
           routerLinkActive="active">
           <span class="navicon">
-            <img src="/assets/user.png" class="navimg" alt="Users" />
+            <img src="/assets/user.png" class="navimg" alt="Utilisateurs" />
           </span>
           <span>Utilisateurs</span>
         </a>
@@ -65,7 +65,7 @@
           routerLink="/settings"
           routerLinkActive="active">
           <span class="navicon">
-            <img src="/assets/settings.png" class="navimg" alt="Settings" />
+            <img src="/assets/settings.png" class="navimg" alt="Paramètres" />
           </span>
           <span>Paramètres</span>
         </a>
@@ -78,83 +78,154 @@
         <span>Se déconnecter</span>
       </a>
     </aside>
-    
+
     <main class="main">
       <div class="topbar">
         <div class="top-left">
-          <div class="top-title">Servers</div>
-          <div class="top-sub">Servers list & monitoring overview</div>
+          <div class="top-title">Serveurs</div>
+          <div class="top-sub">Gestion, supervision et ajout des serveurs</div>
         </div>
 
-        <div class="top-search">
-          <input
-            type="text"
-            placeholder="Search servers..."
-            [(ngModel)]="query"
-            (ngModelChange)="currentPage = 1" />
+        <div class="top-center">
+          <div class="top-search">
+            <input
+              type="text"
+              placeholder="Rechercher un serveur..."
+              [(ngModel)]="searchTerm"
+              (ngModelChange)="currentPage = 1" />
+          </div>
         </div>
 
-        <div class="top-user">
-          <div class="top-avatar"></div>
-          <div>
-            <div class="top-username">Admin</div>
-            <div class="top-status">
-              <span class="top-dot"></span>
-              Connected
+        <div class="top-right">
+          <button
+            type="button"
+            class="add-server-btn"
+            (click)="openAddServer()">
+            <i class="bi bi-plus-circle-fill"></i>
+            <span>Ajouter un serveur</span>
+          </button>
+
+          <div class="profile-wrapper">
+            <div class="top-user" (click)="toggleProfileCard($event)">
+              <div class="top-avatar">
+                <img [src]="currentUser.image" alt="Profil" class="top-avatar-img" />
+              </div>
+
+              <div class="top-user-info">
+                <div class="top-username">Admin</div>
+                <div class="top-status">
+                  <span class="top-dot"></span>
+                  Connecté
+                </div>
+              </div>
+            </div>
+
+            <div class="profile-card" *ngIf="showProfileCard" (click)="$event.stopPropagation()">
+              <div class="profile-card-header">
+                <div class="profile-card-avatar">
+                  <img [src]="currentUser.image" alt="Profil" />
+                </div>
+
+                <div class="profile-card-user">
+                  <div class="profile-card-name">{{ currentUser.fullName }}</div>
+                  <div class="profile-card-role">{{ currentUser.role }}</div>
+                </div>
+              </div>
+
+              <div class="profile-card-body">
+                <div class="profile-item">
+                  <div class="profile-item-label">Nom d'utilisateur</div>
+                  <div class="profile-item-value">{{ currentUser.username }}</div>
+                </div>
+
+                <div class="profile-item">
+                  <div class="profile-item-label">Email</div>
+                  <div class="profile-item-value">{{ currentUser.email }}</div>
+                </div>
+
+                <div class="profile-item">
+                  <div class="profile-item-label">Statut</div>
+                  <div class="profile-item-value profile-online">{{ currentUser.status }}</div>
+                </div>
+              </div>
+
+              <div class="profile-card-actions">
+                <a class="profile-btn profile-btn-settings" routerLink="/settings" (click)="closeProfileCard($event)">
+                  <i class="bi bi-gear"></i>
+                  <span>Paramètres</span>
+                </a>
+
+                <button class="profile-btn profile-btn-logout" type="button" (click)="logout($event)">
+                  <i class="bi bi-box-arrow-right"></i>
+                  <span>Déconnexion</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
       <div class="content">
-        <section class="panel">
-          <div class="panel-head">
+        <div class="stats-row">
+          <div class="stat stat-sidebar-tone" *ngFor="let item of summary">
             <div>
-              <div class="panel-title">Servers</div>
-              <div class="panel-sub">Add and manage servers</div>
+              <div class="label">{{ item.label }}</div>
+              <div class="value">{{ item.value }}</div>
+            </div>
+            <div class="chip">
+              <span class="mini-badge" [ngClass]="item.tone"></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="servers-layout">
+          <section class="panel left-panel">
+            <div class="panel-head">
+              <div>
+                <div class="panel-title">Liste des serveurs</div>
+                <div class="panel-sub">Sélectionnez un serveur pour afficher ses détails</div>
+              </div>
             </div>
 
-            <button
-              type="button"
-              class="btn btn-primary d-flex align-items-center gap-2 px-4 py-2 shadow-sm rounded-3"
-              (click)="openAddServer()">
-              <i class="bi bi-plus-circle-fill"></i>
-              <span>Add Server</span>
-            </button>
-          </div>
+            <div class="table-wrap">
+              <table class="table table-borderless align-middle m-0 table-custom">
+                <thead>
+                  <tr>
+                    <th>Serveur</th>
+                    <th>IP</th>
+                    <th>Port</th>
+                    <th>Système</th>
+                    <th>Statut</th>
+                    <th class="text-end">Heure</th>
+                  </tr>
+                </thead>
 
-          <div class="table-wrap">
-            <table class="table table-borderless align-middle m-0 table-custom">
-              <thead>
-                <tr>
-                  <th style="width:160px;">Server</th>
-                  <th style="width:170px;">IP</th>
-                  <th style="width:90px;">Port</th>
-                  <th style="width:140px;">OS</th>
-                  <th style="width:160px;">Status</th>
-                  <th class="text-end" style="width:110px;">Time</th>
-                </tr>
-              </thead>
+                <tbody>
+                  <tr
+                    *ngFor="let s of pagedServers"
+                    class="clickable-row"
+                    [class.active-row]="selectedServer.name === s.name"
+                    (click)="selectServer(s)">
+                    <td class="fw-semibold">{{ s.name }}</td>
+                    <td class="muted">{{ s.ip }}</td>
+                    <td class="muted">{{ s.port }}</td>
+                    <td class="muted">{{ s.os }}</td>
+                    <td>
+                      <span class="status-pill" [ngClass]="statusClass(s.status)">
+                        {{ s.status }}
+                      </span>
+                    </td>
+                    <td class="text-end muted">{{ s.lastCheck }}</td>
+                  </tr>
 
-              <tbody>
-                <tr *ngFor="let s of paginatedServers">
-                  <td class="fw-semibold">{{ s.name }}</td>
-                  <td class="muted">{{ s.ip }}</td>
-                  <td class="muted">{{ s.port }}</td>
-                  <td class="muted">{{ s.os }}</td>
-                  <td class="status-text" [ngClass]="getStatusClass(s.status)">
-                    {{ s.status }}
-                  </td>
-                  <td class="text-end muted">{{ s.lastCheck }}</td>
-                </tr>
+                  <tr *ngIf="pagedServers.length === 0">
+                    <td colspan="6" class="empty">Aucun serveur trouvé</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
 
-                <tr *ngIf="paginatedServers.length === 0">
-                  <td colspan="6" class="empty">No servers found</td>
-                </tr>
-              </tbody>
-            </table>
-
-            <div class="table-pagination" *ngIf="filteredServers.length > itemsPerPage">
+            <div class="table-pagination" *ngIf="filteredServers.length > pageSize">
               <button
                 class="page-btn nav-btn"
                 type="button"
@@ -168,7 +239,7 @@
                 type="button"
                 *ngFor="let page of pages"
                 [class.active]="page === currentPage"
-                (click)="goToPage(page)">
+                (click)="changePage(page)">
                 {{ page }}
               </button>
 
@@ -180,49 +251,208 @@
                 &gt;
               </button>
             </div>
-          </div>
-        </section>
+          </section>
 
-        <div
-          class="modal-backdrop"
-          *ngIf="showAdd"
-          (click)="closeAddServer()"></div>
-
-        <div class="modal-card" *ngIf="showAdd">
-          <div class="modal-head">
-            <div class="modal-title">Add server</div>
-            <button class="modal-x" type="button" (click)="closeAddServer()">×</button>
-          </div>
-
-          <div class="modal-body">
-            <label class="form-label">Server name</label>
-            <input
-              class="form-control"
-              [(ngModel)]="form.name"
-              placeholder="Ex: SRV-10" />
-
-            <div class="grid2">
+          <section class="panel right-panel">
+            <div class="panel-head">
               <div>
-                <label class="form-label">IP address</label>
-                <input
-                  class="form-control"
-                  [(ngModel)]="form.ip"
-                  placeholder="Ex: 192.168.1.20" />
-              </div>
-
-              <div>
-                <label class="form-label">Port</label>
-                <input
-                  class="form-control"
-                  [(ngModel)]="form.port"
-                  placeholder="22" />
+                <div class="panel-title">Détails du serveur</div>
+                <div class="panel-sub">{{ selectedServer.name }}</div>
               </div>
             </div>
 
-            <div class="modal-actions">
-              <button class="btn-soft" type="button" (click)="closeAddServer()">Cancel</button>
-              <button class="btn-primary-soft" type="button" (click)="addServer()">Add</button>
+            <div class="details-grid">
+              <div class="detail-card">
+                <span class="detail-label">Nom</span>
+                <span class="detail-value">{{ selectedServer.name }}</span>
+              </div>
+
+              <div class="detail-card">
+                <span class="detail-label">Adresse IP</span>
+                <span class="detail-value">{{ selectedServer.ip }}</span>
+              </div>
+
+              <div class="detail-card">
+                <span class="detail-label">Port</span>
+                <span class="detail-value">{{ selectedServer.port }}</span>
+              </div>
+
+              <div class="detail-card">
+                <span class="detail-label">Système</span>
+                <span class="detail-value">{{ selectedServer.os }}</span>
+              </div>
+
+              <div class="detail-card">
+                <span class="detail-label">Localisation</span>
+                <span class="detail-value">{{ selectedServer.location }}</span>
+              </div>
+
+              <div class="detail-card">
+                <span class="detail-label">Responsable</span>
+                <span class="detail-value">{{ selectedServer.owner }}</span>
+              </div>
+
+              <div class="detail-card wide">
+                <div class="status-container">
+                  <div>
+                    <span class="detail-label">Statut</span>
+                    <span class="status-pill" [ngClass]="statusClass(selectedServer.status)">
+                      {{ selectedServer.status }}
+                    </span>
+                  </div>
+                  <button class="btn-edit" type="button" (click)="editServer()">
+                    <i class="bi bi-pencil"></i>
+                    Edit
+                  </button>
+                </div>
+              </div>
+
+              <div class="detail-card wide">
+                <span class="detail-label">Description</span>
+                <span class="detail-value">{{ selectedServer.description }}</span>
+              </div>
             </div>
+
+            <div class="metrics-block">
+              <div class="metric-line">
+                <div class="metric-head">
+                  <span>Processeur</span>
+                  <strong>{{ selectedServer.cpu }}%</strong>
+                </div>
+                <div class="progress-track">
+                  <div class="progress-fill" [style.width.%]="selectedServer.cpu"></div>
+                </div>
+              </div>
+
+              <div class="metric-line">
+                <div class="metric-head">
+                  <span>Mémoire</span>
+                  <strong>{{ selectedServer.ram }}%</strong>
+                </div>
+                <div class="progress-track">
+                  <div class="progress-fill" [style.width.%]="selectedServer.ram"></div>
+                </div>
+              </div>
+
+              <div class="metric-line">
+                <div class="metric-head">
+                  <span>Stockage</span>
+                  <strong>{{ selectedServer.storage }}%</strong>
+                </div>
+                <div class="progress-track">
+                  <div class="progress-fill" [style.width.%]="selectedServer.storage"></div>
+                </div>
+              </div>
+
+              <div class="uptime-box">
+                <span class="detail-label">Temps de fonctionnement</span>
+                <span class="detail-value">{{ selectedServer.uptime }}</span>
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
+
+      <div
+        class="modal-backdrop"
+        *ngIf="showAdd"
+        (click)="closeAddServer()">
+      </div>
+
+      <div class="modal-card" *ngIf="showAdd">
+        <div class="modal-head">
+          <div class="modal-title">Ajouter un serveur</div>
+          <button class="modal-x" type="button" (click)="closeAddServer()">×</button>
+        </div>
+
+        <div class="modal-body">
+          <label class="form-label">Nom du serveur</label>
+          <input
+            class="form-control"
+            [(ngModel)]="form.name"
+            placeholder="Ex : SRV-11" />
+
+          <div class="grid2">
+            <div>
+              <label class="form-label">Adresse IP</label>
+              <input
+                class="form-control"
+                [(ngModel)]="form.ip"
+                placeholder="Ex : 192.168.1.20" />
+            </div>
+
+            <div>
+              <label class="form-label">Port</label>
+              <input
+                class="form-control"
+                [(ngModel)]="form.port"
+                placeholder="Ex : 22" />
+            </div>
+          </div>
+
+          <div class="grid2">
+            <div>
+              <label class="form-label">Système d'exploitation</label>
+              <select class="form-control" [(ngModel)]="form.os">
+                <option value="Linux">Linux</option>
+                <option value="Ubuntu">Ubuntu</option>
+                <option value="Windows">Windows</option>
+                <option value="Debian">Debian</option>
+                <option value="CentOS">CentOS</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="form-label">Localisation</label>
+              <input
+                class="form-control"
+                [(ngModel)]="form.location"
+                placeholder="Ex : Salle serveur A" />
+            </div>
+          </div>
+
+          <label class="form-label">Responsable</label>
+          <input
+            class="form-control"
+            [(ngModel)]="form.owner"
+            placeholder="Ex : Équipe Infrastructure" />
+
+          <label class="form-label">Description</label>
+          <textarea
+            class="form-control textarea-control"
+            [(ngModel)]="form.description"
+            placeholder="Description du serveur"></textarea>
+        </div>
+
+        <div class="modal-actions">
+          <button class="btn-secondary" type="button" (click)="closeAddServer()">
+            Annuler
+          </button>
+
+          <button class="btn-primary" type="button" (click)="addServer()">
+            Ajouter
+          </button>
+        </div>
+      </div>
+
+      <div class="modal-backdrop" *ngIf="showEditStatus" (click)="closeEditStatus()"></div>
+
+      <div class="modal-card edit-status-modal" *ngIf="showEditStatus">
+        <div class="modal-head">
+          <div class="modal-title">Modifier le statut</div>
+          <button class="modal-x" type="button" (click)="closeEditStatus()">×</button>
+        </div>
+
+        <div class="modal-body">
+          <div class="status-options">
+            <button 
+              *ngFor="let status of availableStatuses"
+              class="status-option-btn"
+              [ngClass]="statusClass(status)"
+              type="button"
+              (click)="updateServerStatus(status)">
+              {{ status }}
+            </button>
           </div>
         </div>
       </div>
