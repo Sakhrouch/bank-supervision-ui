@@ -108,7 +108,7 @@
           <div class="profile-wrapper">
             <div class="top-user" (click)="toggleProfileCard($event)">
               <div class="top-avatar">
-                <img [src]="currentUser.image" alt="Profil" class="top-avatar-img" />
+                <img [src]="currentUser?.image" alt="Profil" class="top-avatar-img" />
               </div>
 
               <div class="top-user-info">
@@ -123,29 +123,29 @@
             <div class="profile-card" *ngIf="showProfileCard" (click)="$event.stopPropagation()">
               <div class="profile-card-header">
                 <div class="profile-card-avatar">
-                  <img [src]="currentUser.image" alt="Profil" />
+                  <img [src]="currentUser?.image" alt="Profil" />
                 </div>
 
                 <div class="profile-card-user">
-                  <div class="profile-card-name">{{ currentUser.fullName }}</div>
-                  <div class="profile-card-role">{{ currentUser.role }}</div>
+                  <div class="profile-card-name">{{ currentUser?.fullName }}</div>
+                  <div class="profile-card-role">{{ currentUser?.role }}</div>
                 </div>
               </div>
 
               <div class="profile-card-body">
                 <div class="profile-item">
                   <div class="profile-item-label">Nom d'utilisateur</div>
-                  <div class="profile-item-value">{{ currentUser.username }}</div>
+                  <div class="profile-item-value">{{ currentUser?.username }}</div>
                 </div>
 
                 <div class="profile-item">
                   <div class="profile-item-label">Email</div>
-                  <div class="profile-item-value">{{ currentUser.email }}</div>
+                  <div class="profile-item-value">{{ currentUser?.email }}</div>
                 </div>
 
                 <div class="profile-item">
                   <div class="profile-item-label">Statut</div>
-                  <div class="profile-item-value profile-online">{{ currentUser.status }}</div>
+                  <div class="profile-item-value profile-online">{{ currentUser?.status }}</div>
                 </div>
               </div>
 
@@ -204,7 +204,7 @@
                   <tr
                     *ngFor="let s of pagedServers"
                     class="clickable-row"
-                    [class.active-row]="selectedServer.name === s.name"
+                    [class.active-row]="selectedServer?.name === s.name"
                     (click)="selectServer(s)">
                     <td class="fw-semibold">{{ s.name }}</td>
                     <td class="muted">{{ s.ip }}</td>
@@ -257,98 +257,110 @@
             <div class="panel-head">
               <div>
                 <div class="panel-title">Détails du serveur</div>
-                <div class="panel-sub">{{ selectedServer.name }}</div>
+                <div class="panel-sub">{{ selectedServer?.name || 'Aucun serveur sélectionné' }}</div>
               </div>
             </div>
 
-            <div class="details-grid">
-              <div class="detail-card">
-                <span class="detail-label">Nom</span>
-                <span class="detail-value">{{ selectedServer.name }}</span>
-              </div>
+            <ng-container *ngIf="selectedServer; else noServerSelected">
+              <div class="details-grid">
+                <div class="detail-card">
+                  <span class="detail-label">Nom</span>
+                  <span class="detail-value">{{ selectedServer.name }}</span>
+                </div>
 
-              <div class="detail-card">
-                <span class="detail-label">Adresse IP</span>
-                <span class="detail-value">{{ selectedServer.ip }}</span>
-              </div>
+                <div class="detail-card">
+                  <span class="detail-label">Adresse IP</span>
+                  <span class="detail-value">{{ selectedServer.ip }}</span>
+                </div>
 
-              <div class="detail-card">
-                <span class="detail-label">Port</span>
-                <span class="detail-value">{{ selectedServer.port }}</span>
-              </div>
+                <div class="detail-card">
+                  <span class="detail-label">Port</span>
+                  <span class="detail-value">{{ selectedServer.port }}</span>
+                </div>
 
-              <div class="detail-card">
-                <span class="detail-label">Système</span>
-                <span class="detail-value">{{ selectedServer.os }}</span>
-              </div>
+                <div class="detail-card">
+                  <span class="detail-label">Système</span>
+                  <span class="detail-value">{{ selectedServer.os }}</span>
+                </div>
 
-              <div class="detail-card">
-                <span class="detail-label">Localisation</span>
-                <span class="detail-value">{{ selectedServer.location }}</span>
-              </div>
+                <div class="detail-card">
+                  <span class="detail-label">Localisation</span>
+                  <span class="detail-value">{{ selectedServer.location }}</span>
+                </div>
 
-              <div class="detail-card">
-                <span class="detail-label">Responsable</span>
-                <span class="detail-value">{{ selectedServer.owner }}</span>
-              </div>
+                <div class="detail-card">
+                  <span class="detail-label">Responsable</span>
+                  <span class="detail-value">{{ selectedServer.owner }}</span>
+                </div>
 
-              <div class="detail-card wide">
-                <div class="status-container">
-                  <div>
-                    <span class="detail-label">Statut</span>
-                    <span class="status-pill" [ngClass]="statusClass(selectedServer.status)">
-                      {{ selectedServer.status }}
-                    </span>
+                <div class="detail-card wide">
+                  <div class="status-container">
+                    <div>
+                      <span class="detail-label">Statut</span>
+                      <span class="status-pill" [ngClass]="statusClass(selectedServer.status)">
+                        {{ selectedServer.status }}
+                      </span>
+                    </div>
+
+                    <button
+                      class="btn-edit"
+                      type="button"
+                      (click)="editServer(); $event.stopPropagation()">
+                      <i class="bi bi-pencil"></i>
+                      Edit
+                    </button>
                   </div>
-                  <button class="btn-edit" type="button" (click)="editServer()">
-                    <i class="bi bi-pencil"></i>
-                    Edit
-                  </button>
+                </div>
+
+                <div class="detail-card wide">
+                  <span class="detail-label">Description</span>
+                  <span class="detail-value">{{ selectedServer.description }}</span>
                 </div>
               </div>
 
-              <div class="detail-card wide">
-                <span class="detail-label">Description</span>
-                <span class="detail-value">{{ selectedServer.description }}</span>
-              </div>
-            </div>
+              <div class="metrics-block">
+                <div class="metric-line">
+                  <div class="metric-head">
+                    <span>Processeur</span>
+                    <strong>{{ selectedServer.cpu }}%</strong>
+                  </div>
+                  <div class="progress-track">
+                    <div class="progress-fill" [style.width.%]="selectedServer.cpu"></div>
+                  </div>
+                </div>
 
-            <div class="metrics-block">
-              <div class="metric-line">
-                <div class="metric-head">
-                  <span>Processeur</span>
-                  <strong>{{ selectedServer.cpu }}%</strong>
+                <div class="metric-line">
+                  <div class="metric-head">
+                    <span>Mémoire</span>
+                    <strong>{{ selectedServer.ram }}%</strong>
+                  </div>
+                  <div class="progress-track">
+                    <div class="progress-fill" [style.width.%]="selectedServer.ram"></div>
+                  </div>
                 </div>
-                <div class="progress-track">
-                  <div class="progress-fill" [style.width.%]="selectedServer.cpu"></div>
-                </div>
-              </div>
 
-              <div class="metric-line">
-                <div class="metric-head">
-                  <span>Mémoire</span>
-                  <strong>{{ selectedServer.ram }}%</strong>
+                <div class="metric-line">
+                  <div class="metric-head">
+                    <span>Stockage</span>
+                    <strong>{{ selectedServer.storage }}%</strong>
+                  </div>
+                  <div class="progress-track">
+                    <div class="progress-fill" [style.width.%]="selectedServer.storage"></div>
+                  </div>
                 </div>
-                <div class="progress-track">
-                  <div class="progress-fill" [style.width.%]="selectedServer.ram"></div>
-                </div>
-              </div>
 
-              <div class="metric-line">
-                <div class="metric-head">
-                  <span>Stockage</span>
-                  <strong>{{ selectedServer.storage }}%</strong>
-                </div>
-                <div class="progress-track">
-                  <div class="progress-fill" [style.width.%]="selectedServer.storage"></div>
+                <div class="uptime-box">
+                  <span class="detail-label">Temps de fonctionnement</span>
+                  <span class="detail-value">{{ selectedServer.uptime }}</span>
                 </div>
               </div>
+            </ng-container>
 
-              <div class="uptime-box">
-                <span class="detail-label">Temps de fonctionnement</span>
-                <span class="detail-value">{{ selectedServer.uptime }}</span>
+            <ng-template #noServerSelected>
+              <div class="empty-details">
+                Sélectionnez un serveur dans la liste pour afficher ses détails.
               </div>
-            </div>
+            </ng-template>
           </section>
         </div>
       </div>
@@ -445,7 +457,7 @@
 
         <div class="modal-body">
           <div class="status-options">
-            <button 
+            <button
               *ngFor="let status of availableStatuses"
               class="status-option-btn"
               [ngClass]="statusClass(status)"
