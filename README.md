@@ -1,59 +1,105 @@
-# MyApp
+# Bank Supervision UI
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.1.4.
+Plateforme web de **supervision des serveurs et des applications** conçue et développée lors de mon stage de fin d'études (PFE) à la **Banque Centrale de Tunisie** (février → mai 2026).
 
-## Development server
+> Design sur **Figma**, développement front-end en **Angular 21** et **TypeScript**.
 
-To start a local development server, run:
+![Tableau de bord serveurs](docs/screenshots/serveurs.png)
+
+---
+
+## Le besoin
+
+Les équipes techniques devaient surveiller des serveurs et des applications métiers, et repérer immédiatement les incidents critiques, sans se perdre dans des écrans chargés.
+
+L'objectif : une interface où **l'information critique ressort en premier**, avec deux espaces adaptés à deux usages.
+
+## Fonctionnalités
+
+### Espace administrateur
+- **Tableau de bord** : indicateurs clés (total, en ligne, avertissements, hors ligne)
+- **Serveurs** : liste filtrable, fiche détaillée (IP, port, système, CPU, mémoire, stockage, uptime), ajout et édition
+- **Applications** : suivi des applications métiers (disponibilité, charge, latence), ajout via modale
+- **Alertes** : statuts lisibles en un coup d'œil (en ligne, avertissement, hors ligne, maintenance)
+- **Utilisateurs** et **Paramètres**
+
+### Espace utilisateur
+- Tableau de bord, serveurs, applications et alertes en consultation
+- **Historique** : calendrier des incidents cliquable et graphique des alertes par jour
+
+### Commun
+- Connexion et inscription
+- **Chatbot** d'assistance intégré
+
+## Captures d'écran
+
+| Connexion | Historique |
+|---|---|
+| ![Connexion](docs/screenshots/login.webp) | ![Historique](docs/screenshots/historique.webp) |
+
+| Détail serveur | Applications |
+|---|---|
+| ![Détail serveur](docs/screenshots/detail.png) | ![Applications](docs/screenshots/applications.jpg) |
+
+## Stack technique
+
+- **Angular 21** (composants standalone, routing)
+- **TypeScript 5.9**
+- **RxJS** (services basés sur des `Observable`)
+- HTML5, CSS3, design responsive
+- **Figma** pour les maquettes et le design system
+
+## Architecture
+
+```
+src/app/
+├── pages/          # une page = un composant (admin et utilisateur)
+│   ├── login/ register/
+│   ├── admin-dashboard/ servers/ alerts/ application/ users/ settings/
+│   ├── user-dashboard/ user-servers/ alert-user/ application-users/
+│   ├── user-history/ users-settings/
+│   └── chat-bot/
+├── services/       # accès aux données
+│   ├── server.service.ts
+│   ├── application.service.ts
+│   ├── alert.service.ts
+│   ├── user.service.ts
+│   └── auth.service.ts
+├── shared/
+│   └── chat-widget/
+└── app.routes.ts   # routes admin / utilisateur
+```
+
+Les services exposent les données via des `Observable` (RxJS), ce qui permet de brancher une vraie API REST sans modifier les composants :
+
+```ts
+@Injectable({ providedIn: 'root' })
+export class ServerService {
+  getAllServers(): Observable<ServerItem[]> {
+    return of(this.servers);
+  }
+}
+```
+
+> Les données affichées sont des **données de démonstration** (adresses IP privées, serveurs fictifs).
+
+## Lancer le projet
 
 ```bash
+git clone https://github.com/Sakhrouch/bank-supervision-ui.git
+cd bank-supervision-ui
+npm install
 ng serve
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+Puis ouvrir `http://localhost:4200/`.
 
-## Code scaffolding
+## Auteur
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+**Aymen Sakhri**, Designer UI/UX & développeur Angular
 
-```bash
-ng generate component component-name
-```
+- Portfolio : *(lien à ajouter après publication)*
+- LinkedIn : [linkedin.com/in/aymen-sakhri-87070823b](https://www.linkedin.com/in/aymen-sakhri-87070823b)
+- Behance : [behance.net/Aymensakhri](https://www.behance.net/Aymensakhri)
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
-
-```bash
-ng generate --help
-```
-
-## Building
-
-To build the project run:
-
-```bash
-ng build
-```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
-
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+Projet réalisé en binôme dans le cadre du PFE, Licence en Communication Multimédia, ISAMM.
