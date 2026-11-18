@@ -98,7 +98,7 @@ Puis ouvrir `http://localhost:4200/`.
 
 **Aymen Sakhri**, Designer UI/UX & développeur Angular
 
-- Portfolio : *(lien à ajouter après publication)*
+- Portfolio : [sakhrouch.github.io](https://sakhrouch.github.io)
 - LinkedIn : [linkedin.com/in/aymen-sakhri-87070823b](https://www.linkedin.com/in/aymen-sakhri-87070823b)
 - Behance : [behance.net/Aymensakhri](https://www.behance.net/Aymensakhri)
 
